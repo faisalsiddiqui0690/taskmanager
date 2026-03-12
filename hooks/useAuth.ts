@@ -36,7 +36,6 @@ export default function useAuth() {
     const data = await res.json();
     if (res.ok && data.user) {
       setState({ user: data.user, loading: false });
-      router.push('/dashboard');
     } else {
       throw new Error(data.error || 'Login failed');
     }
@@ -51,7 +50,6 @@ export default function useAuth() {
     const data = await res.json();
     if (res.ok && data.user) {
       setState({ user: data.user, loading: false });
-      router.push('/dashboard');
     } else {
       throw new Error(data.error || 'Registration failed');
     }

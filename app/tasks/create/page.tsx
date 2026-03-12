@@ -14,9 +14,18 @@ export default function CreateTaskPage() {
   };
 
   return (
-    <div className="p-4 max-w-lg mx-auto">
-      <h1 className="text-2xl mb-4">New Task</h1>
-      <TaskForm users={users} onSubmit={handle} />
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <button
+            onClick={() => router.back()}
+            className="text-indigo-600 hover:text-indigo-800 flex items-center gap-2 font-medium"
+          >
+            &larr; Back
+          </button>
+        </div>
+        <TaskForm users={users} onSubmit={handle} submitLabel="Create Task" />
+      </div>
     </div>
   );
 }

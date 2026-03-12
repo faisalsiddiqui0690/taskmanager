@@ -19,19 +19,25 @@ export async function GET(request: Request) {
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  await sequelize.authenticate();
-  const tasks = await Task.findAll({
-    where: {
-      [Op.or]: [
-        { userId: parseInt(userId) },
-        { assignedTo: parseInt(userId) },
+  try {
+    const tasks = await Task.findAll({
+      where: {
+        [Op.or]: [
+          { userId: parseInt(userId) },
+          { assignedTo: parseInt(userId) },
+        ],
+      },
+      order: [['createdAt', 'DESC']],
+      include: [
+        { model: User, as: 'Assigner', attributes: ['id', 'name'] },
+        { model: User, as: 'Assignee', attributes: ['id', 'name'] }
       ],
-    },
-    order: [['createdAt', 'DESC']],
-    include: [{ model: User, as: 'Assigner', foreignKey: 'userId', attributes: ['id', 'name'] },
-    { model: User, as: 'Assignee', foreignKey: 'assignedTo', attributes: ['id', 'name'] }],
-  });
-  return NextResponse.json({ tasks });
+    });
+    return NextResponse.json({ tasks });
+  } catch (error: any) {
+    console.error('Error fetching tasks:', error);
+    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {

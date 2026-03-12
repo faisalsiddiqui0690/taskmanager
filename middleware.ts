@@ -1,14 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyToken } from './lib/auth';
+import { jwtVerify } from 'jose';
 
-export function middleware(request: NextRequest) {
+const JWT_SECRET = process.env.JWT_SECRET || 'change-this-in-env';
+const secret = new TextEncoder().encode(JWT_SECRET);
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  // API requests are handled separately; protect pages only
+  
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/tasks')) {
     const token = request.cookies.get('token')?.value || '';
-    const data = verifyToken(token);
-    if (!data) {
+    
+    try {
+      if (!token) throw new Error('No token');
+      console.log('Middleware Path:', pathname);
+      console.log('Secret (first 5 chars):', JWT_SECRET.substring(0, 5));
+      console.log('Secret length:', JWT_SECRET.length);
+      const { payload } = await jwtVerify(token, secret);
+      console.log('Verification successful for userId:', payload.userId);
+    } catch (err: any) {
+      console.log('Verification failed:', err.message, err.code);
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       return NextResponse.redirect(url);
@@ -18,5 +29,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/tasks/:path*'],
+  matcher: ['/dashboard', '/dashboard/:path*', '/tasks', '/tasks/:path*'],
 };

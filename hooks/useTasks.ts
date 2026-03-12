@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
 export interface TaskType {
   _id: string;
@@ -32,7 +32,7 @@ export default function useTasks() {
         const formatted = (tasksData.tasks || []).map((t: any) => ({ ...t, _id: t.id.toString() }));
         setTasks(formatted);
       } else {
-        toast.error(tasksData.error || 'Unable to load tasks');
+        Swal.fire({ icon: 'error', title: 'Error', text: tasksData.error || 'Unable to load tasks', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
       }
 
       // Fetch users
@@ -42,7 +42,7 @@ export default function useTasks() {
         setUsers(usersData.users || []);
       }
     } catch (e: any) {
-      toast.error('Failed to load data');
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to load data', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     }
     setLoading(false);
   }
@@ -57,9 +57,9 @@ export default function useTasks() {
     if (res.ok) {
       const newTask = { ...data.task, _id: data.task.id.toString() };
       setTasks((t) => [newTask, ...t]);
-      toast.success('Task created');
+      Swal.fire({ icon: 'success', title: 'Task created', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     } else {
-      toast.error(data.error || 'Create failed');
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Create failed', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     }
     return data;
   }
@@ -74,9 +74,9 @@ export default function useTasks() {
     if (res.ok && data.task) {
       const updatedTask = { ...data.task, _id: data.task.id.toString() };
       setTasks((t) => t.map((x) => (x._id === id ? updatedTask : x)));
-      toast.success('Task updated');
+      Swal.fire({ icon: 'success', title: 'Task updated', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     } else {
-      toast.error(data.error || 'Update failed');
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Update failed', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     }
     return data;
   }
@@ -87,9 +87,9 @@ export default function useTasks() {
     });
     if (res.ok) {
       setTasks((t) => t.filter((x) => x._id !== id));
-      toast.success('Task deleted');
+      Swal.fire({ icon: 'success', title: 'Task deleted', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     } else {
-      toast.error('Delete failed');
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Delete failed', toast: true, position: 'top-end', timer: 3000, showConfirmButton: false });
     }
     return res;
   }

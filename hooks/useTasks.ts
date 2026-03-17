@@ -25,8 +25,9 @@ export default function useTasks() {
   async function load() {
     setLoading(true);
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
       // Fetch tasks
-      const tasksRes = await fetch('/api/tasks');
+      const tasksRes = await fetch(`${apiUrl}/api/tasks`, { credentials: 'include' });
       const tasksData = await tasksRes.json();
       if (tasksRes.ok) {
         // Handle id vs _id
@@ -37,7 +38,7 @@ export default function useTasks() {
       }
 
       // Fetch users
-      const usersRes = await fetch('/api/users');
+      const usersRes = await fetch(`${apiUrl}/api/users`, { credentials: 'include' });
       const usersData = await usersRes.json();
       if (usersRes.ok) {
         setUsers(usersData.users || []);
@@ -49,10 +50,12 @@ export default function useTasks() {
   }
 
   async function create(task: Partial<TaskType>) {
-    const res = await fetch('/api/tasks', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/tasks`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(task),
+      credentials: 'include',
     });
     const data = await res.json();
     if (res.ok) {
@@ -66,10 +69,12 @@ export default function useTasks() {
   }
 
   async function update(id: string, updates: Partial<TaskType>) {
-    const res = await fetch(`/api/tasks/${id}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/tasks/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
+      credentials: 'include',
     });
     const data = await res.json();
     if (res.ok && data.task) {
@@ -83,8 +88,10 @@ export default function useTasks() {
   }
 
   async function remove(id: string) {
-    const res = await fetch(`/api/tasks/${id}`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/tasks/${id}`, {
       method: 'DELETE',
+      credentials: 'include',
     });
     if (res.ok) {
       setTasks((t) => t.filter((x) => x._id !== id));

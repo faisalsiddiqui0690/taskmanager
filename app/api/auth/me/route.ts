@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import { verifyToken } from '../../../../lib/auth';
 import { User } from '../../../../models/User';
 import sequelize from '../../../../lib/db';
+import { corsResponse, handleOptions } from '../../../../lib/cors';
+
+export async function OPTIONS() {
+    return handleOptions();
+}
 
 export async function GET(request: Request) {
     // get token from cookies
@@ -10,12 +15,12 @@ export async function GET(request: Request) {
     const token = match ? match[1] : null;
 
     if (!token) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
     const data = verifyToken(token);
     if (!data || !data.userId) {
-        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+        return corsResponse(NextResponse.json({ error: 'Invalid token' }, { status: 401 }));
     }
 
     await sequelize.authenticate();
@@ -24,8 +29,8 @@ export async function GET(request: Request) {
     });
 
     if (!user) {
-        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        return corsResponse(NextResponse.json({ error: 'User not found' }, { status: 404 }));
     }
 
-    return NextResponse.json({ user });
+    return corsResponse(NextResponse.json({ user }));
 }

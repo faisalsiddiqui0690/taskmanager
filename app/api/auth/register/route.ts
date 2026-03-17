@@ -2,12 +2,17 @@ import { NextResponse } from 'next/server';
 import sequelize from '../../../../lib/db';
 import { User } from '../../../../models/User';
 import { hashPassword, signToken, verifyToken } from '../../../../lib/auth';
+import { corsResponse, handleOptions } from '../../../../lib/cors';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function POST(request: Request) {
   const body = await request.json();
   const { name, email, password, role } = body;
   if (!name || !email || !password) {
-    return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
+    return corsResponse(NextResponse.json({ error: 'Missing fields' }, { status: 400 }));
   }
 
   // RBAC for registration
@@ -24,14 +29,14 @@ export async function POST(request: Request) {
       // Admins can only create employees
       targetRole = 'employee';
     } else {
-      return NextResponse.json({ error: 'Forbidden: Only admins and super admins can create users' }, { status: 403 });
+      return corsResponse(NextResponse.json({ error: 'Forbidden: Only admins and super admins can create users' }, { status: 403 }));
     }
   }
 
   await sequelize.authenticate();
   const existing = await User.findOne({ where: { email } });
   if (existing) {
-    return NextResponse.json({ error: 'Email already in use' }, { status: 400 });
+    return corsResponse(NextResponse.json({ error: 'Email already in use' }, { status: 400 }));
   }
 
   const hashed = await hashPassword(password);
@@ -44,10 +49,11 @@ export async function POST(request: Request) {
     email: typeof (user as any).get === 'function' ? (user as any).get('email') : (user as any).email,
     role: typeof (user as any).get === 'function' ? (user as any).get('role') : (user as any).role
   };
-  const response = NextResponse.json({ token, user: payload });
+  const response = corsResponse(NextResponse.json({ token, user: payload }));
   response.cookies.set('token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: true,
+    sameSite: 'none',
     maxAge: 7 * 24 * 60 * 60, // 7 days
     path: '/',
   });

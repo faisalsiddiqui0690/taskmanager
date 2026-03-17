@@ -2,8 +2,8 @@ import mysql from 'mysql2/promise';
 import * as dotenv from 'dotenv';
 import path from 'path';
 
-// Load .env.local manually
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+// Load .env manually
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 
 async function testConnection() {
   console.log(`Testing connection using host: ${process.env.DB_HOST}`);

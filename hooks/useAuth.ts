@@ -13,7 +13,8 @@ export default function useAuth() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('/api/auth/me');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+        const res = await fetch(`${apiUrl}/api/auth/me`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setState({ user: data.user, loading: false });
@@ -28,10 +29,12 @@ export default function useAuth() {
   }, []);
 
   async function login(email: string, password: string) {
-    const res = await fetch('/api/auth/login', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
+      credentials: 'include',
     });
     const data = await res.json();
     if (res.ok && data.user) {
@@ -42,10 +45,12 @@ export default function useAuth() {
   }
 
   async function register(name: string, email: string, password: string, role: string = 'employee') {
-    const res = await fetch('/api/auth/register', {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password, role }),
+      credentials: 'include',
     });
     const data = await res.json();
     if (res.ok && data.user) {
@@ -56,7 +61,8 @@ export default function useAuth() {
   }
 
   async function logout() {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    await fetch(`${apiUrl}/api/auth/logout`, { method: 'POST', credentials: 'include' });
     setState({ user: null, loading: false });
     router.push('/login');
   }

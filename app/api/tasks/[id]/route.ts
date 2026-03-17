@@ -3,12 +3,17 @@ import sequelize from '../../../../lib/db';
 import { Task } from '../../../../models/Task';
 import { User } from '../../../../models/User';
 import { getAuthData } from '../route';
+import { corsResponse, handleOptions } from '../../../../lib/cors';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const auth = await getAuthData(request);
   if (!auth || !auth.userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
   }
   await sequelize.authenticate();
   const task = await Task.findByPk(id, {
@@ -18,7 +23,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     ]
   });
   
-  if (!task) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  if (!task) return corsResponse(NextResponse.json({ error: 'Not found' }, { status: 404 }));
 
   const currentUserId = auth.userId ? Number(auth.userId) : null;
   const isCreator = Number(task.userId) === currentUserId;
@@ -26,17 +31,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const isSuperAdmin = auth.role === 'super_admin';
 
   if (!isCreator && !isAssignee && !isSuperAdmin) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return corsResponse(NextResponse.json({ error: 'Forbidden' }, { status: 403 }));
   }
 
-  return NextResponse.json({ task });
+  return corsResponse(NextResponse.json({ task }));
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const auth = await getAuthData(request);
   if (!auth || !auth.userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
   }
 
   const body = await request.json();
@@ -46,7 +51,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const task = await Task.findByPk(id);
 
   if (!task) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return corsResponse(NextResponse.json({ error: 'Not found' }, { status: 404 }));
   }
 
   const currentUserId = auth.userId ? Number(auth.userId) : null;
@@ -57,7 +62,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   console.log(`Auth Check: ID=${id}, User=${currentUserId}, Role=${auth.role}, isCreator=${isCreator}, isAssignee=${isAssignee}`);
 
   if (!isCreator && !isAssignee && !isSuperAdmin) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return corsResponse(NextResponse.json({ error: 'Forbidden' }, { status: 403 }));
   }
 
   // If ONLY assignee (not creator/superadmin), can ONLY update status
@@ -85,19 +90,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     ]
   });
 
-  return NextResponse.json({ task: updatedTask });
+  return corsResponse(NextResponse.json({ task: updatedTask }));
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const auth = await getAuthData(request);
   if (!auth || !auth.userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
   }
   await sequelize.authenticate();
   const task = await Task.findByPk(id);
   if (!task) {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return corsResponse(NextResponse.json({ error: 'Not found' }, { status: 404 }));
   }
 
   const currentUserId = auth.userId ? Number(auth.userId) : null;
@@ -105,9 +110,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const isSuperAdmin = auth.role === 'super_admin';
 
   if (!isCreator && !isSuperAdmin) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    return corsResponse(NextResponse.json({ error: 'Forbidden' }, { status: 403 }));
   }
 
   await task.destroy();
-  return NextResponse.json({ success: true });
+  return corsResponse(NextResponse.json({ success: true }));
 }

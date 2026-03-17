@@ -4,6 +4,11 @@ import { Task } from '../../../models/Task';
 import { User } from '../../../models/User';
 import { verifyToken } from '../../../lib/auth';
 import { Op } from 'sequelize';
+import { corsResponse, handleOptions } from '../../../lib/cors';
+
+export async function OPTIONS() {
+  return handleOptions();
+}
 
 export async function getAuthData(request: Request) {
   const cookieHeader = request.headers.get('cookie') || '';
@@ -17,7 +22,7 @@ export async function GET(request: Request) {
   try {
     const auth = await getAuthData(request);
     if (!auth || !auth.userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
     let whereClause = {};
@@ -41,10 +46,10 @@ export async function GET(request: Request) {
         { model: User, as: 'Assignee', attributes: ['id', 'name'] }
       ],
     });
-    return NextResponse.json({ tasks });
+    return corsResponse(NextResponse.json({ tasks }));
   } catch (error: any) {
     console.error('GET tasks error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return corsResponse(NextResponse.json({ error: 'Internal Server Error' }, { status: 500 }));
   }
 }
 
@@ -52,17 +57,17 @@ export async function POST(request: Request) {
   try {
     const auth = await getAuthData(request);
     if (!auth || !auth.userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return corsResponse(NextResponse.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
     if (auth.role !== 'admin' && auth.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+      return corsResponse(NextResponse.json({ error: 'Forbidden' }, { status: 403 }));
     }
 
     const body = await request.json();
     const { title, description, dueDate, priority, assignedTo } = body;
     if (!title) {
-      return NextResponse.json({ error: 'Title required' }, { status: 400 });
+      return corsResponse(NextResponse.json({ error: 'Title required' }, { status: 400 }));
     }
 
     await sequelize.authenticate();
@@ -83,9 +88,9 @@ export async function POST(request: Request) {
       ]
     });
 
-    return NextResponse.json({ task: fullTask });
+    return corsResponse(NextResponse.json({ task: fullTask }));
   } catch (error: any) {
     console.error('POST task error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return corsResponse(NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 }));
   }
 }

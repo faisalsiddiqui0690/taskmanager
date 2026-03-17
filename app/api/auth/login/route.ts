@@ -48,10 +48,10 @@ export async function POST(request: Request) {
     return response;
   } catch (error: any) {
     console.error('Login error:', error);
-    return NextResponse.json(
+    return corsResponse(NextResponse.json(
       { error: 'Internal server error', details: error?.message || 'Unknown error' },
       { status: 500 }
-    );
+    ));
   }
 }
 

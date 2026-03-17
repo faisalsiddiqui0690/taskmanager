@@ -15,7 +15,7 @@ const sequelize = new SequelizeConstructor(
     dialectModule: mysql2,
     logging: false,
     dialectOptions: {
-      ssl: process.env.DB_HOST?.includes('aivencloud') ? {
+      ssl: process.env.DB_HOST?.includes('aivencloud.com') ? {
         require: true,
         rejectUnauthorized: false
       } : false

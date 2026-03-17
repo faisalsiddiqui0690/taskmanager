@@ -13,6 +13,7 @@ export interface TaskType {
   assignedTo?: number;
   Assigner?: { id: number; name: string };
   Assignee?: { id: number; name: string };
+  createdAt?: string;
 }
 
 

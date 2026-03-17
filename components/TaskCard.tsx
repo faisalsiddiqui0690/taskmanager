@@ -31,7 +31,11 @@ export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Pro
 
   const isAssignee = user?.id?.toString() === task.assignedTo?.toString();
 
-  const formattedDate = task.dueDate
+  const assignedDate = task.createdAt
+    ? new Date(task.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
+
+  const dueDateFormatted = task.dueDate
     ? new Date(task.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     : null;
 
@@ -117,18 +121,28 @@ export default function TaskCard({ task, onEdit, onDelete, onStatusChange }: Pro
           </p>
         )}
 
-        {/* Due date (Restored) */}
-        <div className={clsx(
-          'mt-3 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider',
-          isOverdue ? 'text-rose-400' : 'text-slate-500'
-        )}>
-          <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          {formattedDate
-            ? <>{isOverdue && <span className="text-rose-400">Overdue · </span>}{formattedDate}</>
-            : <span className="text-slate-600">No deadline</span>
-          }
+        {/* Timeline (Assigned & Due) */}
+        <div className="mt-4 flex flex-col gap-2.5">
+          {/* Assigned Date */}
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-600">
+            <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Assigned: <span className="text-slate-500 ml-auto">{assignedDate || 'N/A'}</span>
+          </div>
+
+          {/* Due Date */}
+          <div className={clsx(
+            'flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider',
+            isOverdue ? 'text-rose-400' : 'text-slate-400'
+          )}>
+            <svg className="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Due: <span className={clsx('ml-auto', isOverdue ? 'text-rose-400' : 'text-slate-300')}>
+              {dueDateFormatted ? <>{isOverdue && 'Overdue · '}{dueDateFormatted}</> : 'No deadline'}
+            </span>
+          </div>
         </div>
       </div>
 

@@ -6,7 +6,7 @@ import { User } from '../../../models/User';
 export async function GET(request: Request) {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email'],
+      attributes: ['id', 'name', 'email', 'role'],
       order: [['name', 'ASC']],
     });
     return NextResponse.json({ users });

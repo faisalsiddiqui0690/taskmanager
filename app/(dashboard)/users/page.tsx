@@ -69,6 +69,49 @@ export default function UsersPage() {
     }
   };
 
+  const handleDeleteUser = async (id: number, name: string) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `You are about to remove ${name}. This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#334155',
+      confirmButtonText: 'Yes, delete it!',
+      background: '#0f172a',
+      color: '#f8fafc',
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to delete user');
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'User has been removed.',
+          timer: 1500,
+          showConfirmButton: false,
+          background: '#0f172a',
+          color: '#f8fafc',
+        });
+        
+        if (refreshUsers) refreshUsers();
+        else window.location.reload();
+      } catch (err: any) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err.message,
+          background: '#0f172a',
+          color: '#f8fafc',
+        });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#080b12] text-slate-200 pb-16">
       {/* Background glows */}
@@ -106,13 +149,19 @@ export default function UsersPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {users.map((u: any, index: number) => (
-              <MemberCard key={u.id} user={u} index={index} />
+              <MemberCard 
+                key={u.id} 
+                user={u} 
+                index={index} 
+                canDelete={currentUser?.role === 'super_admin' && u.id !== currentUser?.id}
+                onDelete={() => handleDeleteUser(u.id, u.name)}
+              />
             ))}
           </div>
         )}
       </div>
 
-      {/* ADD USER MODAL */}
+      {/* ... (Modal remains unchanged) ... */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
@@ -160,18 +209,32 @@ const AVATAR_STYLES = [
   { bg: 'bg-emerald-500/20', border: 'border-emerald-500/30', text: 'text-emerald-300' },
 ];
 
-function MemberCard({ user: u, index }: any) {
+function MemberCard({ user: u, index, canDelete, onDelete }: any) {
   const style = AVATAR_STYLES[index % AVATAR_STYLES.length];
   return (
     <div className="group relative bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 hover:bg-white/[0.055] transition-all duration-200">
-      <div className="flex items-center gap-4 mb-4">
-        <div className={`w-12 h-12 ${style.bg} border ${style.border} rounded-xl flex items-center justify-center text-lg font-bold ${style.text}`}>
-          {u.name.charAt(0).toUpperCase()}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 ${style.bg} border ${style.border} rounded-xl flex items-center justify-center text-lg font-bold ${style.text}`}>
+            {u.name.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-bold truncate">{u.name}</h3>
+            <p className="text-xs text-slate-500 truncate">{u.email}</p>
+          </div>
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold truncate">{u.name}</h3>
-          <p className="text-xs text-slate-500 truncate">{u.email}</p>
-        </div>
+
+        {canDelete && (
+          <button 
+            onClick={onDelete}
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 hover:border-rose-500/40 text-rose-400 hover:text-rose-300 transition-all active:scale-90"
+            title="Delete User"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        )}
       </div>
       <div className="flex items-center gap-2">
         <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">

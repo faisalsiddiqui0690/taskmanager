@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface AuthState {
-  user: { id: string; name: string; email: string } | null;
+  user: { id: string; name: string; email: string; role: string } | null;
   loading: boolean;
 }
 
@@ -41,11 +41,11 @@ export default function useAuth() {
     }
   }
 
-  async function register(name: string, email: string, password: string) {
+  async function register(name: string, email: string, password: string, role: string = 'employee') {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, role }),
     });
     const data = await res.json();
     if (res.ok && data.user) {

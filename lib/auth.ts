@@ -17,14 +17,15 @@ export function comparePassword(password: string, hash: string) {
 
 export function signToken(user: any) {
   const userId = typeof user.get === 'function' ? user.get('id') : user.id;
-  return jwt.sign({ userId: userId.toString() }, JWT_SECRET, {
+  const role = typeof user.get === 'function' ? user.get('role') : user.role;
+  return jwt.sign({ userId: userId.toString(), role: role || 'user' }, JWT_SECRET, {
     expiresIn: '7d',
   });
 }
 
 export function verifyToken(token: string) {
   try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string };
+    return jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
   } catch (err) {
     return null;
   }

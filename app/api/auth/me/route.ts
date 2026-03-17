@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
     await sequelize.authenticate();
     const user = await User.findByPk(data.userId, {
-        attributes: ['id', 'name', 'email'],
+        attributes: ['id', 'name', 'email', 'role'],
     });
 
     if (!user) {

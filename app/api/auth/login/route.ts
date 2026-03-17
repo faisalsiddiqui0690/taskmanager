@@ -28,6 +28,7 @@ export async function POST(request: Request) {
       id: typeof (user as any).get === 'function' ? (user as any).get('id').toString() : (user as any).id.toString(),
       name: typeof (user as any).get === 'function' ? (user as any).get('name') : (user as any).name,
       email: typeof (user as any).get === 'function' ? (user as any).get('email') : (user as any).email,
+      role: typeof (user as any).get === 'function' ? (user as any).get('role') : (user as any).role,
     };
 
     const response = NextResponse.json({ token, user: payload });

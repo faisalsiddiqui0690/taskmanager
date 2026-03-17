@@ -6,7 +6,7 @@ export interface TaskType {
   id: string;
   title: string;
   description?: string;
-  status: 'pending' | 'completed';
+  status: 'pending' | 'started' | 'completed';
   priority: 'Low' | 'Medium' | 'High';
   dueDate?: string;
   userId?: number;

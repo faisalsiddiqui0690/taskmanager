@@ -3,7 +3,17 @@ import { sequelize } from '../lib/db';
 import { User } from './User';
 
 export class Task extends Model {
-  // Fields initialized natively via init()
+  declare id: number;
+  declare title: string;
+  declare description: string | null;
+  declare status: 'pending' | 'started' | 'completed';
+  declare priority: 'Low' | 'Medium' | 'High';
+  declare dueDate: Date | null;
+  declare userId: number;
+  declare assignedTo: number | null;
+
+  declare readonly Assigner?: { id: number; name: string };
+  declare readonly Assignee?: { id: number; name: string };
 }
 
 Task.init(
@@ -21,7 +31,7 @@ Task.init(
       type: DataTypes.TEXT,
     },
     status: {
-      type: DataTypes.ENUM('pending', 'completed'),
+      type: DataTypes.ENUM('pending', 'started', 'completed'),
       defaultValue: 'pending',
     },
     priority: {

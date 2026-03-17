@@ -2,7 +2,11 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../lib/db';
 
 export class User extends Model {
-  // Sequelize handles types at runtime via init()
+  declare id: number;
+  declare name: string;
+  declare email: string;
+  declare password: string;
+  declare role: 'super_admin' | 'admin' | 'employee';
 }
 
 User.init(
@@ -24,6 +28,11 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM('super_admin', 'admin', 'employee'),
+      allowNull: false,
+      defaultValue: 'employee',
     },
   },
   {
